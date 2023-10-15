@@ -5,4 +5,4 @@ The files in this repository are associated with **Ruehr et al. 2023. CITATION, 
 The `functions.py` file includes functions to retrieve relevant indicies from the datacube produced by the hyperspectral imager. Solar-induced fluoresence ($SIF$) is retrieved using the 3 Fraunhofer Line Depth (3FLD) method with default bandwidths identified via the sensitivity analysis discussed in the article. Functions to retrieve the normalized difference vegetation index ($NDVI$), near-infrared reflectance of vegetation ($NIRvR$) and SIF yield ($\Phi F_{c}$) are also included. 
 
 ## Example of variable retrieval
-The `example.py` file processes data provided in the Zenodo repository. Functions are loaded from the `functions.py` file to retrieve $SIF$, $NDVI$, $NIRvR$ and $\Phi F_{c}$. Outputs are saved as separate files for further analysis (code not provided). 
+The `example.py` file processes data provided in the Zenodo repository. Functions are loaded from the `functions.py` file to retrieve $SIF$, $NDVI$, $NIRvR$ and $\Phi F_{c}$. Outputs are saved as separate files for further analysis.
