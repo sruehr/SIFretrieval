@@ -66,27 +66,6 @@ def get_red(wavel, lib, R = 671, bands = 3):
     R = np.mean(R_band, axis = 2)
     return(R)
 
-# Retrieve fPAR
-def get_fpar(wavel, lib, roi_panel, RED = 671, bands = 5, roi_dim = 1):
-    import numpy as np
-    red_index = find_nearest(wavel, RED)
-    red_band = lib[:,:,red_index-bands:red_index+bands]
-    red_sum = np.sum(red_band, axis = 2)
-    panel_red = roi_panel[:,:,red_index-bands:red_index+bands]
-    panel_sum = np.sum(panel_red, axis = 2)
-    
-    ax = None
-    if roi_dim == 2: # If normalizing row by row (white panel spans FOV)
-        ax = 1
-    panel_mean = np.mean(panel_sum, axis = ax)
-    
-    if roi_dim ==1:
-        fPAR = 1-  red_sum / panel_mean
-    if roi_dim == 2:
-        fPAR = 1-  red_sum / panel_mean[:, None]
-
-    return(fPAR)
-
 # Take mean over wavelengths of interest for each pixel
 def subset_lambda(lambda1, diff1, wavel1, lib1):
     import numpy as np
