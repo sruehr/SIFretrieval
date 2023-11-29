@@ -5,28 +5,28 @@ Created on Fri Nov 25 17:35:06 2022
 
 Author information:
 Sophie Ruehr
-Website: www.sruehr.github.io
+Website: sruehr.github.io
 Email: sophie.ruehr@berkeley.edu
 
-Code used in Ruehr et al. (2023)
+Code used in Ruehr et al.; paper submitted to Geophysical Research Letters in November 2023
 
 ------------------------------------------------------------------------------
-'Retrieve PhiF from one hyperspectral acquisition'
+'Retrieve vegetation parameters from one hyperspectral acquisition'
 
-This example code retrieves SIF, NDVI, NIR, fPAR, fESC, and PhiF_c.
+This example code retrieves SIF, NDVI, NIR, fESC, and PhiF_c.
 Retrievals are saved as .tif files
 Functions for this code are stored in the `functions.py` file.
 ------------------------------------------------------------------------------
 """
 
-#%% Input working directories
+#%% Input working directories -- change these to match your file system
 # Paths to code, data, and save directories
     # Code (where function.py is stored)
-code_wd = '/Users/sophieruehr/Documents/Academic/Berkeley/Research/Headwall/Code/for_publishing_github'
+code_wd = '../code'
     # Data
-data_wd = '/Volumes/Rugged/headwall_data/Headwall/Testbed/2022_04_18/2022_04_18_13_11'
+data_wd = '../data'
     # Save data (if desired, uncomment below)
-save_wd = '/Volumes/Rugged/testing_delete_if_you_want'
+save_wd = '../output'
 
 # %% Load necessary libraries and functions 
 import numpy as np
@@ -45,7 +45,6 @@ from functions import get_sif
 from functions import get_phif
 from functions import get_ndvi
 from functions import get_nir
-from functions import get_fpar
 from functions import get_red
 from functions import find_nearest
 
@@ -54,19 +53,17 @@ from functions import find_nearest
 sif_function = 'percent' # Detect minimum and maximum values within 3FLD bands by 5 and 95 percentiles to reduce noise
 ndvi_lim_percent = 25 # Quantile for NDVI mask below which vegetation is masked
 upscale_factor = 1/4 # Bilinear resampling to larger spatial resolution 
+file = '2022-04-18_11:20.hdr' # Header file for time of of interest; change if you want to process another time
 
 # %% Open radiance datacube
 # Set working directory to raw radiance data files
 os.chdir(data_wd)
-# List files
-dirs = os.listdir()
 # Open header file (stores information/indices of hyperspectral datacube)
-file = glob.glob('*raw_rd.hdr')
-h = envi.read_envi_header(file[0])
+h = envi.read_envi_header(file)
 # Retrieve information of wavelengths within datacube
 wavel = [float(i) for i in h['wavelength']]
 # Open radiance file 
-lib = envi.open(file[0])
+lib = envi.open(file)
 
 # %% Get panel radiance values for 3FLD SIF retrieval
 
@@ -74,14 +71,14 @@ lib = envi.open(file[0])
 colplot(lib[:,:,0], vmax = 10)
 
 # Identify ROI. Should be in form [x,y,x,y] (two points to define a rectangle)
-roi = [680, 1500 ,700, 1600]
+roi = [750, 1500 ,800, 1600]
 # Plot ROI on image to ensure accurate placement
 colplot(lib[:,:,0], rois= roi, vmax=10)
 
 # Extract white panel radiance 
 roi_panel = lib[roi[1]:roi[3],roi[0]:roi[2],:]
 
-# Plot spectral from one pixel
+# Plot spectra from one pixel
 point = [100, 800]
 
 # Plot spectra from 10 pixels. As this is a subset of the full data cube, there are missing values at some wavelengths
@@ -97,14 +94,12 @@ SIF = get_sif(wavel, roi_panel, lib, mean_max_flag = sif_function)
 NDVI = get_ndvi(wavel, lib)
 RED = get_red(wavel, lib) 
 NIR = get_nir(wavel, lib)
-fPAR = get_fpar(wavel, lib, roi_panel)
              
 # Rotate data 90 degrees (datacube is 90˚ rotated by default)
 SIF = np.rot90(SIF) # 3FLD method
 NDVI = np.rot90(NDVI)
 NIR = np.rot90(NIR)
 RED = np.rot90(RED)
-fPAR = np.rot90(fPAR)
             
 # Calculate f_esc based on Zeng et al. 2019
 PhiF = get_phif(SIF, NDVI, NIR)
@@ -115,13 +110,11 @@ NDVI = scipy.ndimage.zoom(NDVI, upscale_factor, order=1)
 SIF = scipy.ndimage.zoom(SIF, upscale_factor, order=1)
 NIR = scipy.ndimage.zoom(NIR, upscale_factor, order=1)
 RED = scipy.ndimage.zoom(RED, upscale_factor, order=1)
-fPAR = scipy.ndimage.zoom(fPAR, upscale_factor, order=1)
 PhiF =  scipy.ndimage.zoom(PhiF, upscale_factor, order=1)
 
 # %% Plot output
 colplot(SIF, vmax = 0.45, title = 'SIF')  
 colplot(NDVI, title = 'NDVI') 
-colplot(fPAR, title = 'RED', vmax = 1, vmin = 0.8)     
          
 # %% Write data
 os.chdir(save_wd)
@@ -129,6 +122,5 @@ imsave(('SIF.tif'), SIF)
 imsave(('NDVI.tif'), NDVI)
 imsave(('NIR.tif'), NIR) 
 imsave(('RED.tif'), RED) 
-imsave(('fPAR.tif'), fPAR) 
 imsave(('PhiF.tif'), PhiF) 
     
