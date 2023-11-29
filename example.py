@@ -53,7 +53,7 @@ from functions import find_nearest
 sif_function = 'percent' # Detect minimum and maximum values within 3FLD bands by 5 and 95 percentiles to reduce noise
 ndvi_lim_percent = 25 # Quantile for NDVI mask below which vegetation is masked
 upscale_factor = 1/4 # Bilinear resampling to larger spatial resolution 
-file = '2022-04-18_11:20.hdr' # Header file for time of of interest; change if you want to process another time
+file = '2022-04-18_11:20.hdr' # Header file for file (acquisition) of of interest; change if you want to process another file
 
 # %% Open radiance datacube
 # Set working directory to raw radiance data files
